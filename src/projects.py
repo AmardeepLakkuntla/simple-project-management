@@ -32,6 +32,17 @@ def create_project_form(request: Request, project_id = Form(...),project_name = 
 def update_project_form(request: Request):
     return templates.TemplateResponse('update_project.html',{'request': request})
 
+@router.post('/projects/update')
+def update_project(request: Request, project_id: str = Form(...), project_name: str = Form(...), description: str = Form(...), budget: str = Form(...), duration: str = Form(...)):
+    data = {
+        'name': project_name,
+        'description': description,
+        'budget': budget,
+        'duration': duration
+    }
+    db.table('projects').update(data).eq('id', project_id).execute()
+    return RedirectResponse('/projects', status_code=302)
+
 @router.get('/projects/edit/{project_id}')
 def edit_project_form(request: Request, project_id: str):
     res = db.table('projects').select('*').eq('id', project_id).execute()
@@ -40,11 +51,7 @@ def edit_project_form(request: Request, project_id: str):
         data = res.data[0]
     return templates.TemplateResponse('update_project.html', {'request': request, 'project': data})
 
-
 @router.delete('/projects/delete/{project_id}')
 def delete_project(project_id: str):
-    try:
-        res = db.table('projects').delete().eq('id', project_id).execute()
-        return {'status': 'success', 'message': 'Project deleted successfully'}
-    except Exception as e:
-        return JSONResponse({'error': str(e)}, status_code=400)
+    res = db.table('projects').delete().eq('id', project_id).execute()
+    return {'status': 'success', 'message': 'project deleted successfully', 'result': res.data}
