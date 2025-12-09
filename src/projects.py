@@ -6,6 +6,10 @@ from fastapi.responses import RedirectResponse, JSONResponse
 templates=Jinja2Templates(directory='templates')
 router = APIRouter()
 
+@router.get('/')
+def home_projects():
+    return RedirectResponse('/projects')
+
 @router.get('/projects')
 def get_projects(request: Request):
  res = db.table('projects').select('*').execute()
